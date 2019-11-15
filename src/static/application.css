@@ -1,0 +1,51 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+#databasesAccordtion{
+}
+#bottom{
+	-fx-background-color:#ffffff;
+	-fx-border-width:2px;
+	-fx-border-color:green;
+}
+#loginGrid{
+	
+}
+.imageView{
+	-fx-size:15px 15px;
+}
+#submit{
+	-fx-pref-width:150px;
+	-fx-pref-height:30px;
+}
+#connectIcon{
+	-fx-background-image:url("show/connect.png");
+}
+#runIcon{
+	-fx-background-image:url("show/run.png");
+}
+.icon{
+	-fx-background-repeat:no-repeat;
+	-fx-background-size:25px 25px;
+	-fx-pref-height:25px;
+	-fx-pref-width:25px;
+	-fx-border-width:3px;
+}
+#saveIcon{
+	-fx-background-image:url("show/save.png");
+}
+#fileIcon{
+	-fx-background-image:url("show/file.png");
+}
+#stopIcon{
+	-fx-background-image:url("show/stop.png");
+}
+
+#console{
+	-fx-background-color:#3d3232;
+}
+
+.table{
+	-fx-background-color: #cccccc;
+	-fx-font-color:#cccccc;
+}
+#editor{
+}
