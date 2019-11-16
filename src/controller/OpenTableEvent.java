@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javafx.event.EventHandler;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -15,8 +17,8 @@ import models.Table;
 public class OpenTableEvent implements EventHandler<MouseEvent>{
 	private Connection connection;
 	private TabPane docView;
-	private TreeView<String> explore;
-	public OpenTableEvent(TabPane docView ,Connection connection,TreeView<String> explore) {
+	private TreeView<Label> explore;
+	public OpenTableEvent(TabPane docView, Connection connection, TreeView<Label> explore) {
 		// TODO Auto-generated constructor stub
 		this.explore=explore;
 		this.connection=connection;
@@ -27,12 +29,19 @@ public class OpenTableEvent implements EventHandler<MouseEvent>{
 		// 事件需要处理的内容
 		if(event.getClickCount()==2)
 		{
-			TreeItem<String> selected=explore.getSelectionModel().getSelectedItem();
+			TreeItem<Label> selected=explore.getSelectionModel().getSelectedItem();
 			if(explore.getTreeItemLevel(selected)==2)
 			{
-				System.out.println(selected.getValue());
 				try {
-					ResultSet result = DataBase.database.OpenTable(this.connection,selected.getValue(),selected.getParent().getValue());
+					//遍历tabpane检测是否已经打开过了，打开了就不用再打开
+					for (Tab tmpTab : this.docView.getTabs()) {
+						if(tmpTab.getText()==selected.getValue().getText())
+						{
+							this.docView.getSelectionModel().select(tmpTab);
+							return ;
+						}
+					} 
+					ResultSet result = DataBase.database.OpenTable(this.connection,selected.getValue().getText(),selected.getParent().getValue().getText());
 					Table table = new Table();
 					for(int i=1;i<=result.getMetaData().getColumnCount();i++)
 					{
@@ -48,7 +57,7 @@ public class OpenTableEvent implements EventHandler<MouseEvent>{
 						}
 						table.getData().add(tmpdata);	
 					}
-					new news.TableTab(selected.getValue(),docView, table);
+					new news.TableTab(selected.getValue().getText(),docView, table);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					System.out.println(e.toString());

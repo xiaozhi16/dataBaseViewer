@@ -8,7 +8,6 @@ import DataBase.database;
 import controller.NewFEvent;
 import controller.OpenFileEvent;
 import controller.OpenTableEvent;
-import controller.ShowTableEvent;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -31,7 +30,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -39,9 +37,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import news.contentMenu.TreeDatabaseContextMenu;
 import news.contentMenu.TreeTableContentMenu;;
 
 public class App extends Application {
+	public static String host;
 	public static Connection connection; 
 	private TabPane console = new TabPane();
 	private TabPane docView= new TabPane();
@@ -194,6 +194,7 @@ public class App extends Application {
 				if(connectResult != null)
 				{
 					App.connection = connectResult;
+					App.host = hostInput.getText();
 					login.close();
 				}
 			}
@@ -220,47 +221,48 @@ public class App extends Application {
 		SplitPane bottom = new SplitPane();
     	bottom.setId("bottom");
 		//左边的折叠式(treeView)面板
-    	TreeView<String> explore = new TreeView<String>();
+    	TreeView<Label> explore = new TreeView<Label>();
     	explore.setPrefWidth(200);
     	explore.setMaxWidth(350);
     	explore.setMinWidth(50);
     	explore.setId("databasesAccordtion");
     	explore.setOnMouseClicked(new OpenTableEvent(this.docView,App.connection,explore));
-//    	explore.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
+//    	explore.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Label>>() {
 //
 //			@Override
-//			public void changed(ObservableValue<? extends TreeItem<String>> arg0, TreeItem<String> arg1,
-//					TreeItem<String> arg2) {
+//			public void changed(ObservableValue<? extends TreeItem<Label>> arg0, TreeItem<Label> arg1,
+//					TreeItem<Label> arg2) {
 //				System.out.println(arg0.getValue());
 //				
 //			}
 //		});;
     	//存放折叠面板的子项
-    	TreeItem<String> root=new TreeItem<String>("数据库");
+    	TreeItem<Label> root=new TreeItem<Label>(new Label(App.host));
     	explore.prefHeightProperty().bind(bottom.prefHeightProperty());
-    	explore.setContextMenu(new TreeTableContentMenu());
     	root.setExpanded(true);
     	for (String databaseName : databasesName) {
     		ImageView databaseIcon = new ImageView(new Image("static/show/treeview/database.png"));
     		databaseIcon.setFitHeight(15);
     		databaseIcon.setFitWidth(15);
-    		TreeItem<String> databaseTitle = new TreeItem<String>(databaseName,databaseIcon);
-    		
-			databaseTitle.setExpanded(true);
+    		Label databasetitleLabel = new Label(databaseName);
+    		TreeItem<Label> databaseTitle = new TreeItem<Label>(databasetitleLabel,databaseIcon);
+    		databasetitleLabel.setContextMenu(new TreeDatabaseContextMenu(databasetitleLabel.getText()));
+			databaseTitle.setExpanded(false);
 			ArrayList<String> tablesName = database.getTableName(connection, databaseName);
 			for (String tableName : tablesName) {
 				ImageView tableIcon = new ImageView(new Image("static/show/treeview/table.png"));
 				tableIcon.setFitWidth(15);
 				tableIcon.setFitHeight(15);
-				TreeItem<String> tmpTable = new TreeItem<String>(tableName,tableIcon);
-				tmpTable.setExpanded(true);
-				tmpTable.addEventHandler(MouseEvent.MOUSE_CLICKED, new ShowTableEvent(tmpTable.getValue()));
+				Label tabletitleLabel = new Label(tableName);
+				TreeItem<Label> tmpTable = new TreeItem<Label>(tabletitleLabel,tableIcon);
+				tabletitleLabel.setContextMenu(new TreeTableContentMenu(tabletitleLabel.getText()));
+				
+				tmpTable.setExpanded(false);
 				databaseTitle.getChildren().addAll(tmpTable);
 			}
 //			databaseTitle.setOnContextMenuRequested(new titleKeyPressed(databaseTitle.getText()));
 	    	root.getChildren().add(databaseTitle);
     	}
-    	
     	//文档与控制台
     	SplitPane docAndConsole = new SplitPane();
     	docAndConsole.setOrientation(Orientation.VERTICAL);
